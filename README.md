@@ -25,5 +25,6 @@ Vice versa if you want to delete a value, object or array, create an object or a
 
 The resulting edited object will be in myObject[0]
 
-
-
+The two-way binding works, but not from editor instance to editor
+instance. It should work, but doesn't. Something to do with scopes and
+watches and digests..
