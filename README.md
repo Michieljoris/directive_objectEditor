@@ -28,3 +28,7 @@ The resulting edited object will be in myObject[0]
 The two-way binding works, but not from editor instance to editor
 instance. It should work, but doesn't. Something to do with scopes and
 watches and digests..
+
+TODO:
+* There is a bug if you empty out an object of array. It doesn't affect
+functionality. 
