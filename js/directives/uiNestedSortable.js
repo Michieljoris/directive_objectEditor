@@ -1,8 +1,7 @@
 myAppModule.directive('uiNestedSortable', ['$parse', function ($parse) {
 
     'use strict';
-
-    var options = {
+    var myoptions = {
         listType: 'ol',
         items: 'li',
         doNotClear: true,
@@ -26,7 +25,7 @@ myAppModule.directive('uiNestedSortable', ['$parse', function ($parse) {
         restrict: 'A',
         link: function (scope, element, attrs) {
             var options = attrs.uiNestedSortable ? $parse(attrs.uiNestedSortable)() : {};
-            options = angular.extend(options, options);
+            options = angular.extend(options, myoptions);
 
             angular.forEach(eventTypes, function (eventType) {
 
@@ -48,8 +47,7 @@ myAppModule.directive('uiNestedSortable', ['$parse', function ($parse) {
 
             });
             
-            options.isAllowed = 
-                element.nestedSortable(options);
+            element.nestedSortable(options);
 
         }
     };

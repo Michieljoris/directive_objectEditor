@@ -5,7 +5,6 @@
 myAppModule.directive('objectEditor', function(){
     return {
         restrict: 'EAC',
-        // This HTML will replace the zippy directive.
         replace: true,
         transclude: true,
         scope: { obj: "=editObject"},
@@ -36,14 +35,15 @@ myAppModule.directive('objectEditor', function(){
                              var values = [];
                              var i = 0;
                              array.forEach(function(e) {
-                                 var prop = { ord: i };
+                                 var prop = { ord: '_' + i };
+                                 
                                  if (angular.isArray(e)) {
                                      prop.type = 'array';   
                                      prop.children = parseArray(e);
                                  }
                                  else if (angular.isObject(e)) {
                                      prop.type = 'object';   
-                                     prop.children = parseObject(e);
+                                     prop.children = $scope.parseObject(e);
                                  }
                                  else prop.value = e;
                                  values.push(prop);
@@ -93,6 +93,7 @@ myAppModule.directive('objectEditor', function(){
                          };
 
                          function addChild(parent, type) {
+                             // console.log('add child to ' ,parent);
                              var child;
                              if (type) child = { type: type, children: []};
                              else child = {
@@ -115,20 +116,20 @@ myAppModule.directive('objectEditor', function(){
                                  delete child.ord;
                              }
 
-                             console.log(parent);
                              // parent.children = parent.children || [];
                              parent.children.push(child);
         
                              if (parent.type === 'array') {
                                  var i = 0;
                                  angular.forEach(parent.children, function(c) {
-                                     c.ord = i++;
+                                     c.ord = '_' + i++;
                                  });
                              }
                              $scope.sync();
                          }
 
                          $scope.remove = function (child) {
+                             // console.log('remove');
                              function walk(target) {
                                  var children = target.children,
                                  i;
@@ -144,6 +145,7 @@ myAppModule.directive('objectEditor', function(){
                                  }
                              }
                              walk($scope.data);
+                             $scope.sync();
                          };
     
     
@@ -154,7 +156,7 @@ myAppModule.directive('objectEditor', function(){
                              target = (parent[0] === root) ? $scope.data : parent.scope().child,
                              child = item.scope().child,
                              index = item.index();
-                             console.log('update',child, target, index);
+                             // console.log('update>',child, target, index);
 
                              if (!target.children) target.children = [];
 
@@ -183,7 +185,6 @@ myAppModule.directive('objectEditor', function(){
                                  }
                                  return true;
                              }
-        
                              if (target.type === 'object') {
                                  child.key = child.key || 'newKey';
                                  var u = 0;
@@ -197,24 +198,23 @@ myAppModule.directive('objectEditor', function(){
                              if (target.type === 'array') {
                                  var i = 0;
                                  angular.forEach(target.children, function(c) {
-                                     c.ord = i++;
+                                     c.ord = '_' + i++;
                                  });
                              }
         
                              // $scope.obj = makeArray($scope.data.children);
                              $scope.sync();
-                             console.log($scope.obj);
                          };
                          
                          $scope.sync = function sync() {
-                             $scope.obj = makeArray($scope.data.children);
+                             $scope.obj = makeObject($scope.data.children);
                              $scope.data.isInSync= true;
                          };
                          
                          $scope.$watch('obj', function() {
                              if (!$scope.data.isInSync) {
                                  $scope.data = {
-                                     type: 'array', children: $scope.parseObject($scope.obj)
+                                     type: 'object', children: $scope.parseObject($scope.obj || {})
                                  };
                              } else {
                                  $scope.data.isInSync = false;
@@ -228,7 +228,6 @@ myAppModule.directive('objectEditor', function(){
     
                          $scope.click = function(child) {
                              $scope.partObj = child.value;
-                             console.log('click', child.value);
                          }; 
     
                          $scope.inputStyle = function(val) {
@@ -247,7 +246,7 @@ myAppModule.directive('objectEditor', function(){
         
         link: function(scope, element, attrs) {
             scope.data = {
-                type: 'array', children: scope.parseObject(scope.obj)
+                type: 'object', children: scope.parseObject(scope.obj || {})
             };
             
         }
